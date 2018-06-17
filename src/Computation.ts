@@ -1,5 +1,10 @@
 // TODO add module to typescript
-//var nr = require('newton-raphson-method');
+import * as nr from 'newton-raphson-method';
+
+import Pipe from "./Pipe";
+import ChartArrayObject from "./ChartArrayObject";
+import ChartData from "./ChartData";
+import Inputs from "./Inputs";
 
 class Computation {
 
@@ -116,50 +121,4 @@ class Computation {
     }
 }
 
-
-class ChartArrayObject {
-    x: number;
-    y: number;
-}
-
-class ChartData {
-    pressure_profile: Array<ChartArrayObject>;
-    geometry: Array<ChartArrayObject>;
-
-    constructor(pressure_profile: Array<ChartArrayObject>, geometry: Array<ChartArrayObject>) {
-        this.pressure_profile = pressure_profile;
-        this.geometry = geometry;
-    }
-}
-
-
-class Pipe {
-    description: string;
-    horizontal_change: number;
-    vertical_change: number;
-    inner_diamter: number;
-    roughness: number;
-    cores: number
-}
-
-class Inputs {
-    static x: 17;
-    static y: 2;
-    static volumetric_expansion: 0;
-    static C_Value_Threshold_for_Erosion: 125;
-    static required_flowrate: 0.5; //m3/hr
-    static density: 1070; //kg/m3
-    static viscosity: 6.98; //cP
-    static outlet_pressure: 630; //bar
-    static Re_laminar_max: 2000;
-    static Re_transitional_max: 4000
-
-
-}
-
-let pipey = new Pipe();
-pipey.horizontal_change = 7;
-let pipeys = [pipey, pipey];
-let c = new Computation(pipeys);
-
-c.pipes;
+export default Computation;

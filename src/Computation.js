@@ -1,5 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 // TODO add module to typescript
-//var nr = require('newton-raphson-method');
+const nr = require("newton-raphson-method");
+const ChartArrayObject_1 = require("./ChartArrayObject");
+const ChartData_1 = require("./ChartData");
+const Inputs_1 = require("./Inputs");
 class Computation {
     constructor(calculationInput) {
         this.calculationInput = calculationInput;
@@ -8,35 +13,35 @@ class Computation {
     compute() {
         for (let i = 0; i < this.pipes.length; i++) {
             this.pipe_length.push(Math.sqrt(Math.pow(this.pipes[i].horizontal_change, 2) + Math.pow(this.pipes[i].vertical_change, 2)));
-            this.mean_diameter.push(this.pipes[i].inner_diamter * Math.pow(1 + (Inputs.volumetric_expansion / 100), 0.5));
+            this.mean_diameter.push(this.pipes[i].inner_diamter * Math.pow(1 + (Inputs_1.default.volumetric_expansion / 100), 0.5));
             this.nonDimensional_Roughness.push(this.pipes[i].roughness / this.mean_diameter[i]);
-            this.fluid_rate.push(Inputs.required_flowrate / 3600 / this.pipes[i].cores);
+            this.fluid_rate.push(Inputs_1.default.required_flowrate / 3600 / this.pipes[i].cores);
             this.fluid_velocity.push(this.fluid_rate[i] / (Math.PI * Math.pow((this.mean_diameter[i] / 1000 / 2), 2)));
-            this.reynolds.push((Inputs.density * this.fluid_velocity[i] * this.mean_diameter[i] / 1000) / (Inputs.viscosity / 1000));
+            this.reynolds.push((Inputs_1.default.density * this.fluid_velocity[i] * this.mean_diameter[i] / 1000) / (Inputs_1.default.viscosity / 1000));
             // switch to chosen fluid model: laminar, transitional, turbulent
             const ff_laminar = 64 / this.reynolds[i];
             const ff_colebrook = this.colebrookFrictionCoefficient(this.nonDimensional_Roughness[i], this.reynolds[i]);
-            if (this.reynolds[i] < Inputs.Re_laminar_max) {
+            if (this.reynolds[i] < Inputs_1.default.Re_laminar_max) {
                 this.correlation.push("Laminar");
                 this.friction_factor.push(ff_laminar);
             }
-            else if (this.reynolds[i] >= Inputs.Re_laminar_max && this.reynolds[i] < Inputs.Re_transitional_max) {
+            else if (this.reynolds[i] >= Inputs_1.default.Re_laminar_max && this.reynolds[i] < Inputs_1.default.Re_transitional_max) {
                 this.correlation.push("Transitional");
-                const ff_transitional = (this.reynolds[i] - Inputs.Re_laminar_max) * (ff_colebrook - ff_laminar) / (Inputs.Re_transitional_max - Inputs.Re_laminar_max) + ff_laminar;
+                const ff_transitional = (this.reynolds[i] - Inputs_1.default.Re_laminar_max) * (ff_colebrook - ff_laminar) / (Inputs_1.default.Re_transitional_max - Inputs_1.default.Re_laminar_max) + ff_laminar;
                 this.friction_factor.push(ff_transitional);
             }
             else {
                 this.correlation.push("Turbulent");
                 this.friction_factor.push(ff_colebrook);
             }
-            this.pressure_drop_friction.push(this.friction_factor[i] * this.pipe_length[i] / (this.mean_diameter[i] / 1000) * Inputs.density * Math.pow(this.fluid_velocity[i], 2) / 2 * 0.00001);
-            this.pressure_drop_static.push(Inputs.density * 9.81 * this.pipes[i].vertical_change / 100000);
+            this.pressure_drop_friction.push(this.friction_factor[i] * this.pipe_length[i] / (this.mean_diameter[i] / 1000) * Inputs_1.default.density * Math.pow(this.fluid_velocity[i], 2) / 2 * 0.00001);
+            this.pressure_drop_static.push(Inputs_1.default.density * 9.81 * this.pipes[i].vertical_change / 100000);
             this.pressure_drop_overall.push(this.pressure_drop_friction[i] - this.pressure_drop_static[i]);
             // convert to number so js doesn't interpret as string and concat
             this.distance_x.push(this.distance_x[i] + Number(this.pipes[i].horizontal_change));
             this.displacement_y.push(this.displacement_y[i] - this.pipes[i].vertical_change);
             // ****build graph inputs***
-            let geometryArrayObj = new ChartArrayObject;
+            let geometryArrayObj = new ChartArrayObject_1.default;
             geometryArrayObj.x = this.distance_x[i + 1];
             geometryArrayObj.y = this.displacement_y[i + 1];
             if (i === 0) {
@@ -54,11 +59,11 @@ class Computation {
         // pressure drop
         let previousPressure = 0;
         for (let i = 0; i < this.pressure_drop_overall.length + 1; i++) {
-            let pressureProfileObj = new ChartArrayObject();
+            let pressureProfileObj = new ChartArrayObject_1.default();
             if (i === 0) {
                 pressureProfileObj.x = 0;
-                pressureProfileObj.y = Inputs.outlet_pressure + total_pressure_drop;
-                previousPressure = Inputs.outlet_pressure + total_pressure_drop;
+                pressureProfileObj.y = Inputs_1.default.outlet_pressure + total_pressure_drop;
+                previousPressure = Inputs_1.default.outlet_pressure + total_pressure_drop;
             }
             else {
                 pressureProfileObj.x = this.cumulative_length[i - 1];
@@ -67,7 +72,7 @@ class Computation {
             }
             this.pressure_profile.push(pressureProfileObj);
         }
-        let chartData = new ChartData(this.pressure_profile, this.geometry);
+        let chartData = new ChartData_1.default(this.pressure_profile, this.geometry);
     }
     colebrookFrictionCoefficient(nonDimensional_Roughness, reynolds) {
         function f(x) {
@@ -76,20 +81,4 @@ class Computation {
         return nr(f, 0.01);
     }
 }
-class ChartArrayObject {
-}
-class ChartData {
-    constructor(pressure_profile, geometry) {
-        this.pressure_profile = pressure_profile;
-        this.geometry = geometry;
-    }
-}
-class Pipe {
-}
-class Inputs {
-}
-let pipey = new Pipe();
-pipey.horizontal_change = 7;
-let pipeys = [pipey, pipey];
-let c = new Computation(pipeys);
-c.pipes;
+exports.default = Computation;

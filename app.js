@@ -9,13 +9,17 @@ var usersRouter = require('./routes/users');
 
 var app = express();
 
+// import {Computation} from "./Computation";
+var Computation = require('./src/Computation');
+var Pipe = require('./src/Pipe');
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -23,19 +27,38 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+app.use(function (req, res, next) {
+    next(createError(404));
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+var p = {
+        description: "ass",
+        horizontal_change: 2,
+        vertical_change: 3,
+        inner_diamter: 4,
+        roughness: 5,
+        cores: 6
+    }
+;
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+p.description = "string";
+p.horizontal_change = 1;
+p.vertical_change = 2;
+p.inner_diamter = 0;
+p.roughness = 1;
+p.cores = 1;
+
+var c = new Computation(p);
+
+// error handler
+app.use(function (err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
 });
 
 module.exports = app;
