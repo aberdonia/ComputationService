@@ -1,3 +1,6 @@
+// TODO add module to typescript
+//var nr = require('newton-raphson-method');
+
 class Computation {
 
     pipes: Array<Pipe>;
@@ -65,7 +68,7 @@ class Computation {
             // ****build graph inputs***
             let geometryArrayObj = new ChartArrayObject;
             geometryArrayObj.x = this.distance_x[i + 1];
-            geometryArrayObj.y=  this.displacement_y[i + 1];
+            geometryArrayObj.y = this.displacement_y[i + 1];
 
             if (i === 0) {
                 this.cumulative_length.push(this.pipe_length[0]);
